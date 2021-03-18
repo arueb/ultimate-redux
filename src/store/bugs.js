@@ -1,33 +1,56 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createSelector } from "reselect";
-// reducer
+import { apiCallBegan } from "./api";
+import moment from "moment";
 let lastId = 0;
 // create slice calls createAction and createReducer;
 const slice = createSlice({
   name: "bugs",
-  initialState: [],
+  initialState: {
+    list: [],
+    loading: false,
+    lastFetch: null,
+  },
   reducers: {
+    bugsRequested: (bugs, action) => {
+      bugs.loading = true;
+    },
+    bugsReceived: (bugs, action) => {
+      bugs.list = action.payload;
+      bugs.loading = false;
+      bugs.lastFetch = Date.now();
+    },
+    bugsRequestFailed: (bugs, action) => {
+      bugs.loading = false;
+    },
     bugAdded: (bugs, action) => {
-      bugs.push({
+      bugs.list.push({
         id: ++lastId,
         description: action.payload.description,
         resolved: false,
       });
     },
     bugResolved: (bugs, action) => {
-      const index = bugs.findIndex((bug) => bug.id === action.payload.id);
-      bugs[index].resolved = true;
+      const index = bugs.list.findIndex((bug) => bug.id === action.payload.id);
+      bugs.list[index].resolved = true;
     },
     bugAssignedToUser: (bugs, action) => {
       const { bugId, userId } = action.payload;
-      const index = bugs.findIndex((bug) => bug.id === bugId);
-      bugs[index].userId = userId;
+      const index = bugs.list.findIndex((bug) => bug.id === bugId);
+      bugs.list[index].userId = userId;
     },
   },
 });
 
 export default slice.reducer;
-export const { bugAdded, bugResolved, bugAssignedToUser } = slice.actions;
+export const {
+  bugAdded,
+  bugResolved,
+  bugAssignedToUser,
+  bugsReceived,
+  bugsRequested,
+  bugsRequestFailed,
+} = slice.actions;
 
 // selector function
 // export const getUnresolvedBugs = (state) =>
@@ -54,6 +77,35 @@ export const getBugsByUser = (userId) =>
 // const BUG_RESOLVED = "bugResolved";
 
 // action creators
+const url = "/bugs";
+
+// rewrite the function below so that it returns a function (handled by Thunk)
+// this allows us to access state via it's parameters (dsipatch, getState)
+
+export const loadBugs = () => (dispatch, getState) => {
+  const { lastFetch } = getState().entities.bugs;
+
+  const diffInMinutes = moment().diff(moment(lastFetch), "minutes");
+  if (diffInMinutes < 10) return;
+
+  dispatch(
+    apiCallBegan({
+      url,
+      onStart: bugsRequested.type,
+      onSuccess: bugsReceived.type,
+      onError: bugsRequestFailed.type,
+    })
+  );
+};
+
+// export const loadBugs = () =>
+//   apiCallBegan({
+//     url,
+//     onStart: bugsRequested.type,
+//     onSuccess: bugsReceived.type,
+//     onError: bugsRequestFailed.type,
+//   });
+
 // the string passed is available at the type property of the
 // resulting object, thus eliminating the need to define constants above
 // since they are only defined in once here

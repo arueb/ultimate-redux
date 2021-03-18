@@ -1,4 +1,5 @@
 import configureStore from "./store/configureStore";
+import { loadBugs } from "./store/bugs";
 // import * as actions from "./store/bugs";
 import {
   bugAdded,
@@ -9,23 +10,27 @@ import {
 } from "./store/bugs";
 import { projectAdded } from "./store/projects";
 import { userAdded } from "./store/users";
+import api from "./store/middleware/api";
 const store = configureStore();
+
+// UI layer
+store.dispatch(loadBugs());
 
 // store.dispatch({
 //   type: "error",
 //   payload: { message: "An error occurred." },
 // });
 
-store.dispatch({
-  type: "apiCallBegan",
-  payload: {
-    url: "/bugs",
-    method: "get",
-    data: {},
-    onSuccess: "bugsReceived",
-    onError: "apiRequestFailed",
-  },
-});
+// store.dispatch({
+//   type: "apiCallBegan",
+//   payload: {
+//     url: "/bugs",
+//     method: "get",
+//     data: {},
+//     onSuccess: "bugsReceived",
+//     onError: "apiRequestFailed",
+//   },
+// });
 
 // store.dispatch((dispatch, getState) => {
 //   // Call an API
