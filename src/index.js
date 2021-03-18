@@ -11,11 +11,34 @@ import { projectAdded } from "./store/projects";
 import { userAdded } from "./store/users";
 const store = configureStore();
 
-store.subscribe(() => {
-  console.log("Store changed !!!!");
+// store.dispatch({
+//   type: "error",
+//   payload: { message: "An error occurred." },
+// });
+
+store.dispatch({
+  type: "apiCallBegan",
+  payload: {
+    url: "/bugs",
+    method: "get",
+    data: {},
+    onSuccess: "bugsReceived",
+    onError: "apiRequestFailed",
+  },
 });
 
-store.dispatch(userAdded({ name: "Alex" }));
+// store.dispatch((dispatch, getState) => {
+//   // Call an API
+//   // When the promise is resolved => dispatch()
+//   dispatch({ type: "bugsReceived", bugs: [1, 2, 3] });
+//   // If the promise is rejected => dispatch()
+// });
+
+// store.subscribe(() => {
+//   console.log("Store changed !!!!");
+// });
+
+// store.dispatch(userAdded({ name: "Alex" }));
 // store.dispatch(userAdded({ name: "Mosh" }));
 // store.dispatch(projectAdded({ name: "project 1" }));
 // store.dispatch(bugAdded({ description: "Bug 1" }));
