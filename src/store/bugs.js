@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createSelector } from "reselect";
 import { apiCallBegan } from "./api";
 import moment from "moment";
-let lastId = 0;
+
 // create slice calls createAction and createReducer;
 const slice = createSlice({
   name: "bugs",
@@ -24,18 +24,14 @@ const slice = createSlice({
       bugs.loading = false;
     },
     bugAdded: (bugs, action) => {
-      bugs.list.push({
-        id: ++lastId,
-        description: action.payload.description,
-        resolved: false,
-      });
+      bugs.list.push(action.payload);
     },
     bugResolved: (bugs, action) => {
       const index = bugs.list.findIndex((bug) => bug.id === action.payload.id);
       bugs.list[index].resolved = true;
     },
     bugAssignedToUser: (bugs, action) => {
-      const { bugId, userId } = action.payload;
+      const { id: bugId, userId } = action.payload;
       const index = bugs.list.findIndex((bug) => bug.id === bugId);
       bugs.list[index].userId = userId;
     },
@@ -43,7 +39,8 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
-export const {
+
+const {
   bugAdded,
   bugResolved,
   bugAssignedToUser,
@@ -98,6 +95,30 @@ export const loadBugs = () => (dispatch, getState) => {
   );
 };
 
+// actioncreator
+export const addBug = (bug) =>
+  apiCallBegan({
+    url,
+    method: "post",
+    data: bug,
+    onSuccess: bugAdded.type,
+  });
+
+export const assignBugToUser = (bugId, userId) =>
+  apiCallBegan({
+    url: url + "/" + bugId,
+    method: "patch",
+    data: { userid },
+    onSuccess: bugAssignedToUser.type,
+  });
+
+export const resolveBug = (id) =>
+  apiCallBegan({
+    url: url + "/" + id,
+    method: "patch",
+    data: { resolved: true },
+    onSuccess: bugResolved.type,
+  });
 // export const loadBugs = () =>
 //   apiCallBegan({
 //     url,
@@ -152,6 +173,7 @@ export const loadBugs = () => (dispatch, getState) => {
 // });
 
 // reducer must be default export when using ducks pattern
+
 // export default function reducer(state = [], action) {
 //   switch (action.type) {
 //     case bugAdded.type:

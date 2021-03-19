@@ -1,5 +1,5 @@
 import configureStore from "./store/configureStore";
-import { loadBugs } from "./store/bugs";
+import { loadBugs, addBug, resolveBug } from "./store/bugs";
 // import * as actions from "./store/bugs";
 import {
   bugAdded,
@@ -15,6 +15,9 @@ const store = configureStore();
 
 // UI layer
 store.dispatch(loadBugs());
+setTimeout(() => store.dispatch(resolveBug(2)), 2000);
+
+// store.dispatch(addBug({ description: "a" }));
 
 // store.dispatch({
 //   type: "error",
