@@ -57,13 +57,13 @@ const {
 export const getUnresolvedBugs = createSelector(
   (state) => state.entities.bugs,
   (state) => state.entities.projects,
-  (bugs, projects) => bugs.filter((bug) => !bug.resolved) // only run if bugs or projects entities change
+  (bugs, projects) => bugs.list.filter((bug) => !bug.resolved) // only run if bugs or projects entities change
 );
 
 export const getBugsByUser = (userId) =>
   createSelector(
     (state) => state.entities.bugs,
-    (bugs) => bugs.filter((bug) => bug.userId === userId)
+    (bugs) => bugs.list.filter((bug) => bug.userId === userId)
   );
 // console.log(slice);
 

@@ -13,6 +13,11 @@ export default function () {
   // calling this function returns a redux store
   return configureStore({
     reducer,
-    middleware: [...getDefaultMiddleware(), logger("console"), toast, api],
+    middleware: [
+      ...getDefaultMiddleware(),
+      // logger("console"),
+      toast,
+      api,
+    ],
   });
 }
