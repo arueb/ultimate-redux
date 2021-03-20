@@ -1,4 +1,4 @@
-import { isEven } from "./math";
+import { isEven } from "../../math";
 
 describe("isEven", () => {
   // describe groups tests
