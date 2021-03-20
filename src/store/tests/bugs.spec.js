@@ -1,6 +1,6 @@
 import MockAdapter from "axios-mock-adapter";
 import axios from "axios";
-import { addBug } from "../bugs";
+import { addBug, resolveBug } from "../bugs";
 import configureStore from "../configureStore";
 
 describe("bugsSlice", () => {
@@ -35,6 +35,19 @@ describe("bugsSlice", () => {
     await store.dispatch(addBug(bug));
 
     // Assert
-    expect(store.getState().entities.bugs.list).toHaveLength(0);
+    expect(bugsSlice().list).toHaveLength(0);
+  });
+
+  it("should mark the bug as resolved if saved to the server", async () => {
+    //arrange
+    fakeAxios.onPatch("/bugs/1").reply(200, { id: 1, resolved: true });
+    fakeAxios.onPost("/bugs").reply(200, { id: 1, resolved: false });
+
+    //act
+    await store.dispatch(addBug({}));
+    await store.dispatch(resolveBug(1));
+
+    //assert
+    expect(bugsSlice().list[0].resolved).toBe(true);
   });
 });
